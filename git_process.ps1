@@ -28,7 +28,6 @@
 
 # ---- Step 5: Stage, Commit, and Push Changes ----
 # Stage changes (prepare files for the commit)
-    git add <file>               # Stage a specific file
     git add .                    # Stage all changes in the current directory
 
 # Commit staged changes (save changes locally)
@@ -96,4 +95,19 @@
 # ---- Check Git Version ----
 # Display the installed version of Git
     git --version                # Shows the current version of Git
+
+# Git Hub CLI
+gh repo list nicholaskrivanec --limit 100 --json name,url # List all repos for a user
+
+# Clone all repos for a user
+gh repo list nicholaskrivanec --limit 100 --json nameWithOwner,url | ConvertFrom-Json | ForEach-Object {
+    gh repo clone $_.nameWithOwner
+}
+# List all repos in current workspace
+Get-ChildItem -Directory -Path "X:\Your\Workspace\Path" | Select-Object Name
+
+Get-ChildItem -Directory -Path "X:\00_Development\projects" | Select-Object -ExpandProperty Name
+
+
+
 
