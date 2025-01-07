@@ -38,25 +38,25 @@
 
 # ---- Step 6: Branching (Optional) ----
 # Create a new branch
-    git branch <branch-name>     # Create a branch with the specified name
+    git branch 'branch name'    # Create a branch with the specified name
 
 # Switch to a branch
-    git checkout <branch-name>   # Switches to the specified branch
+    git checkout 'branch name'   # Switches to the specified branch
 
 # Create and switch to a new branch in one step
-    git checkout -b <branch-name>    # Creates and switches to a new branch
+    git checkout -b 'branch name'    # Creates and switches to a new branch
 
 # Merge a branch into the current branch
-    git merge <branch-name>      # Merges the specified branch into the current branch
+    git merge 'branch name'     # Merges the specified branch into the current branch
 
 # Delete a branch
-    git branch -d <branch-name>  # Deletes a branch (only if merged)
-    git branch -D <branch-name>  # Force delete a branch (even if not merged)
+    git branch -d 'branch name'  # Deletes a branch (only if merged)
+    git branch -D 'branch name'  # Force delete a branch (even if not merged)
 
 # ---- Step 7: Repository Cleanup (Optional) ----
 # Remove a file or folder from tracking (use with caution)
-    git rm <file>                # Removes a file and stages the removal
-    git rm -r <folder>           # Removes a folder recursively
+    git rm 'path'                # Removes a file and stages the removal
+    git rm -r 'directory'           # Removes a folder recursively
 
 # Add a .gitignore file to exclude files or directories from tracking
 # Example: echo "*.log" > .gitignore
@@ -68,22 +68,22 @@
 
 # Show differences between commits
     git diff                     # Shows unstaged changes
-    git diff <commit1> <commit2> # Shows differences between two commits
+    git diff 'commit name' 'commit name' # Shows differences between two commits
 
 # ---- Step 9: Reset or Undo Changes (Optional) ----
 # Unstage changes
-    git reset <file>             # Unstages the specified file
+    git reset 'path'             # Unstages the specified file
     git reset                    # Unstages all staged files
 
 # Undo changes in working directory (not committed)
-    git checkout -- <file>       # Reverts a file to the last committed state
+    git checkout -- 'path'       # Reverts a file to the last committed state
 
 # Roll back to a previous commit
-    git reset --hard <commit-hash>   # Resets the repository to a specific commit (deletes changes)
+    git reset --hard 'commit hash'   # Resets the repository to a specific commit (deletes changes)
 
 # ---- Additional Commands ----
 # Add a new remote repository
-    git remote add origin <url>  # Adds a new remote named "origin"
+    git remote add origin 'url'  # Adds a new remote named "origin"
     git remote -v                # Lists all configured remotes
 
 # Rename the current branch (e.g., to main)
@@ -107,6 +107,7 @@ gh repo list nicholaskrivanec --limit 100 --json nameWithOwner,url | ConvertFrom
 Get-ChildItem -Directory -Path "X:\Your\Workspace\Path" | Select-Object Name
 
 Get-ChildItem -Directory -Path "X:\00_Development\projects" | Select-Object -ExpandProperty Name
+
 
 
 
