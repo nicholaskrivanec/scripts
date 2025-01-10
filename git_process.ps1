@@ -83,7 +83,7 @@
 
 # ---- Additional Commands ----
 # Add a new remote repository
-    git remote add origin 'url'  # Adds a new remote named "origin"
+    git remote add origin 'https://github.com/nicholaskrivanec/xv6.git'  # Adds a new remote named "origin"
     git remote -v                # Lists all configured remotes
 
 # Rename the current branch (e.g., to main)
@@ -107,6 +107,14 @@ gh repo list nicholaskrivanec --limit 100 --json nameWithOwner,url | ConvertFrom
 Get-ChildItem -Directory -Path "X:\Your\Workspace\Path" | Select-Object Name
 
 Get-ChildItem -Directory -Path "X:\00_Development\projects" | Select-Object -ExpandProperty Name
+
+
+
+# After renaming a branch... If you have a local clone, you can update it by running...
+git branch -m master main
+git fetch origin
+git branch -u origin/main main
+git remote set-head origin -a
 
 
 

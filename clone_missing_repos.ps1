@@ -1,3 +1,38 @@
+<#
+.SYNOPSIS
+Synchronize local repositories with a GitHub user’s repositories and update a VS Code workspace file.
+
+.DESCRIPTION
+This function checks for repositories on GitHub for a specified user and compares them with the local repositories
+in a specified workspace directory. It clones any missing repositories and updates a VS Code workspace file
+to include all repositories in the directory.
+
+.PARAMETER WorkspacePath
+The local directory where repositories are stored. Defaults to "X:\00_Development\projects".
+
+.PARAMETER WorkspaceFile
+The path to the VS Code workspace file to update. Defaults to "X:\00_Development\projects\projects.code-workspace".
+
+.PARAMETER GitHubUser
+The GitHub username whose repositories will be synchronized. Defaults to "nicholaskrivanec".
+
+.PARAMETER RepoLimit
+The maximum number of repositories to fetch from GitHub. Defaults to 100.
+
+.EXAMPLE
+Update-WorkspaceRepositories
+
+Synchronize local repositories in "X:\00_Development\projects" with the repositories of user "nicholaskrivanec"
+and update the "projects.code-workspace" file.
+
+.EXAMPLE
+Update-WorkspaceRepositories -WorkspacePath "C:\MyProjects" -GitHubUser "myusername"
+
+Synchronize local repositories in "C:\MyProjects" with the repositories of user "myusername".
+
+.NOTES
+- Ensure that the GitHub CLI (gh) is installed and authenticated before running this function.
+#>
 function Update-WorkspaceRepositories {
     param (
         [string]$WorkspacePath = "X:\00_Development\projects",  # Default workspace path

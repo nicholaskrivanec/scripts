@@ -7,16 +7,16 @@ This script automates the process of setting up a PowerShell module. It ensures 
 backs up the system PATH variable, updates or overwrites the specified .psm1 file, adds the module's location to the system PATH,
 and imports the module for immediate use.
 
-.PARAMETER Ps1FilePath
+.PARAMETER FilePath
 The file path to the .ps1 script that will be converted into a .psm1 module. This parameter is mandatory.
 
 .EXAMPLE
-.\YourScript.ps1 -Ps1FilePath "C:\Path\To\YourScript.ps1"
+Add-Module "C:\Path\To\YourScript.ps1"
 
 Copies the provided script, converts it to a .psm1 file in "C:\Scripts", and updates the system PATH.
 
 .EXAMPLE
-.\clone_missing_repos.ps1 -Ps1FilePath ".\Scripts\MyScript.ps1"
+Add-Module -FilePath ".\Scripts\MyScript.ps1"
 
 Uses a relative path to copy and convert the script to a module.
 
@@ -25,10 +25,10 @@ Uses a relative path to copy and convert the script to a module.
 - The system PATH is updated only if "C:\Scripts" is not already included.
 - Requires PowerShell 5.1 or later.
 #>
-
+function Add-Module {
 param (
     [Parameter(Mandatory = $true)]
-    [string]$Ps1FilePath
+    [string]$FilePath
 )
 
 # Define helper functions
@@ -91,16 +91,16 @@ Write-Host "Script started"
 
 # Resolve the provided script path
 try {
-    $absolutePath = Resolve-Path -Path $Ps1FilePath -ErrorAction Stop
+    $absolutePath = Resolve-Path -Path $ps-path -ErrorAction Stop
 } catch {
-    Write-Error "The specified file does not exist: $Ps1FilePath"
+    Write-Error "The specified file does not exist: $FilePath"
     exit 1
 }
 
 # Define backup and destination paths
 $backupFile = "C:\Scripts\path_backup.txt"
 $destinationDir = "C:\Scripts"
-$destinationFile = Join-Path -Path $destinationDir -ChildPath "$([System.IO.Path]::GetFileNameWithoutExtension($Ps1FilePath)).psm1"
+$destinationFile = Join-Path -Path $destinationDir -ChildPath "$([System.IO.Path]::GetFileNameWithoutExtension($FilePath)).psm1"
 
 # Step 1: Ensure the destination directory exists
 New-SafeDirectory -Path $destinationDir
@@ -131,3 +131,4 @@ Get-ChildItem -Path $destinationDir -Filter "*.psm1" | ForEach-Object {
 }
 
 Write-Host "Script setup completed successfully. PATH backup saved at $backupFile."
+}
