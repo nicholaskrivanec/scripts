@@ -116,6 +116,8 @@ git fetch origin
 git branch -u origin/main main
 git remote set-head origin -a
 
+git remote set-url origin https://github.com/nicholaskrivanec/portfolio2024.git
+
 
 
 

@@ -11,7 +11,7 @@ and imports the module for immediate use.
 The file path to the .ps1 script that will be converted into a .psm1 module. This parameter is mandatory.
 
 .EXAMPLE
-Add-Module "C:\Path\To\YourScript.ps1"
+.\add_sys_mods.ps1 -FilePath "C:\Path\To\YourScript.ps1"
 
 Copies the provided script, converts it to a .psm1 file in "C:\Scripts", and updates the system PATH.
 
@@ -26,109 +26,90 @@ Uses a relative path to copy and convert the script to a module.
 - Requires PowerShell 5.1 or later.
 #>
 function Add-Module {
-param (
-    [Parameter(Mandatory = $true)]
-    [string]$FilePath
-)
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath
+    )
 
-# Define helper functions
-function New-SafeDirectory {
-    <#
-    .SYNOPSIS
-    Ensures a directory exists. Creates the directory if it does not already exist.
-
-    .PARAMETER Path
-    The directory path to check or create.
-    #>
-    param([string]$Path)
-    if (-not (Test-Path -Path $Path)) {
-        Write-Host "Creating directory: $Path"
-        New-Item -ItemType Directory -Path $Path | Out-Null
-    } else {
-        Write-Host "Directory already exists: $Path"
+    # Define helper functions
+    function New-SafeDirectory {
+        param([string]$Path)
+        if (-not (Test-Path -Path $Path)) {
+            Write-Host "Creating directory: $Path"
+            New-Item -ItemType Directory -Path $Path | Out-Null
+        } else {
+            Write-Host "Directory already exists: $Path"
+        }
     }
-}
 
-function Backup-SystemPath {
-    <#
-    .SYNOPSIS
-    Backs up the current system PATH variable to a file.
+    function Backup-SystemPath {
+        param([string]$BackupFile)
+        $currentPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
+        try {
+            Set-Content -Path $BackupFile -Value $currentPath
+            Write-Host "System PATH backed up to: $BackupFile"
+        } catch {
+            throw "Failed to back up the system PATH: $_"
+        }
+    }
 
-    .PARAMETER BackupFile
-    The file path where the system PATH variable will be saved.
-    #>
-    param([string]$BackupFile)
-    $currentPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
+    function Add-ToSystemPath {
+        param([string]$Path)
+        $currentPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
+        if ($currentPath -notlike "*$Path*") {
+            Write-Host "Adding $Path to the system PATH."
+            [Environment]::SetEnvironmentVariable("Path", "$currentPath;$Path", [EnvironmentVariableTarget]::Machine)
+        } else {
+            Write-Host "$Path is already in the system PATH."
+        }
+    }
+
     try {
-        Set-Content -Path $BackupFile -Value $currentPath
-        Write-Host "System PATH backed up to: $BackupFile"
+
+        Write-Host "Script started"
+    
+        # Resolve the provided script path
+        try {
+            $absolutePath = Resolve-Path -Path $FilePath -ErrorAction Stop
+        } catch {
+            throw "The specified file does not exist: $FilePath"
+        }
+    
+        # Define backup and destination paths
+        $backupFile = "C:\Scripts\path_backup.txt"
+        $destinationDir = "C:\Scripts"
+        $destinationFile = Join-Path -Path $destinationDir -ChildPath "$([System.IO.Path]::GetFileNameWithoutExtension($FilePath)).psm1"
+    
+        # Step 1: Ensure the destination directory exists
+        New-SafeDirectory -Path $destinationDir
+    
+        # Step 2: Back up the system PATH
+        Backup-SystemPath -BackupFile $backupFile
+    
+        # Step 3: Update or overwrite the module file
+        if (Test-Path -Path $destinationFile) {
+            Write-Host "Module file already exists: $destinationFile. Overwriting..."
+        } else {
+            Write-Host "Module file does not exist. Creating new file..."
+        }
+        Copy-Item -Path $absolutePath -Destination $destinationFile -Force
+    
+        # Step 4: Add the destination directory to the system PATH
+        Add-ToSystemPath -Path $destinationDir
+    
+        # Step 5: Import all .psm1 modules in the destination directory
+        Get-ChildItem -Path $destinationDir -Filter "*.psm1" | ForEach-Object {
+            $modulePath = $_.FullName
+            if (-not (Get-Module -ListAvailable | Where-Object { $_.Path -eq $modulePath })) {
+                Write-Host "Importing module: $modulePath"
+                Import-Module -Name $modulePath
+            } else {
+                Write-Host "Module already imported: $modulePath"
+            }
+        }
+    
+        Write-Host "Script setup completed successfully. PATH backup saved at $backupFile."
     } catch {
-        Write-Error "Failed to back up the system PATH: $_"
-        Read-Host "Press Enter to exit."
-        exit 1
+        throw "Error Occurred during module setup for $FilePath"
     }
-}
-
-function Add-ToSystemPath {
-    <#
-    .SYNOPSIS
-    Adds a directory to the system PATH variable if it's not already included.
-
-    .PARAMETER Path
-    The directory path to add to the system PATH.
-    #>
-    param([string]$Path)
-    $currentPath = [Environment]::GetEnvironmentVariable("Path", [EnvironmentVariableTarget]::Machine)
-    if ($currentPath -notlike "*$Path*") {
-        Write-Host "Adding $Path to the system PATH."
-        [Environment]::SetEnvironmentVariable("Path", "$currentPath;$Path", [EnvironmentVariableTarget]::Machine)
-    } else {
-        Write-Host "$Path is already in the system PATH."
-    }
-}
-
-Write-Host "Script started"
-
-# Resolve the provided script path
-try {
-    $absolutePath = Resolve-Path -Path $ps-path -ErrorAction Stop
-} catch {
-    Write-Error "The specified file does not exist: $FilePath"
-    exit 1
-}
-
-# Define backup and destination paths
-$backupFile = "C:\Scripts\path_backup.txt"
-$destinationDir = "C:\Scripts"
-$destinationFile = Join-Path -Path $destinationDir -ChildPath "$([System.IO.Path]::GetFileNameWithoutExtension($FilePath)).psm1"
-
-# Step 1: Ensure the destination directory exists
-New-SafeDirectory -Path $destinationDir
-
-# Step 2: Back up the system PATH
-Backup-SystemPath -BackupFile $backupFile
-
-# Step 3: Update or overwrite the module file
-if (Test-Path -Path $destinationFile) {
-    Write-Host "Module file already exists: $destinationFile. Overwriting..."
-} else {
-    Write-Host "Module file does not exist. Creating new file..."
-}
-Copy-Item -Path $absolutePath -Destination $destinationFile -Force
-
-# Step 4: Add the destination directory to the system PATH
-Add-ToSystemPath -Path $destinationDir
-
-# Step 5: Import all .psm1 modules in the destination directory
-Get-ChildItem -Path $destinationDir -Filter "*.psm1" | ForEach-Object {
-    $modulePath = $_.FullName
-    if (-not (Get-Module -ListAvailable | Where-Object { $_.Path -eq $modulePath })) {
-        Write-Host "Importing module: $modulePath"
-        Import-Module -Name $modulePath
-    } else {
-        Write-Host "Module already imported: $modulePath"
-    }
-}
-
-Write-Host "Script setup completed successfully. PATH backup saved at $backupFile."
 }

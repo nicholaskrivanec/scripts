@@ -11,12 +11,12 @@ and imports the module for immediate use.
 The file path to the .ps1 script that will be converted into a .psm1 module. This parameter is mandatory.
 
 .EXAMPLE
-.\YourScript.ps1 -Ps1FilePath "C:\Path\To\YourScript.ps1"
+.\add_sys_mods.ps1 -Ps1FilePath "C:\Path\To\YourScript.ps1"
 
 Copies the provided script, converts it to a .psm1 file in "C:\Scripts", and updates the system PATH.
 
 .EXAMPLE
-.\clone_missing_repos.ps1 -Ps1FilePath ".\Scripts\MyScript.ps1"
+.\add_sys_mods.ps1 -Ps1FilePath ".\Scripts\MyScript.ps1"
 
 Uses a relative path to copy and convert the script to a module.
 
